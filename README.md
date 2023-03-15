@@ -6,3 +6,5 @@ A **flash card** app used to help students study
 * Figure out the template for the flashcards
 * Build user interface
 * Outline algorithm with pseudocode
+
+# Installation
