@@ -1,1 +1,6 @@
-{'2 + 2': '4', 'What is biology?': 'The area of science that studies life.', 'Why are plants green?': 'Plants absorb most at the blue and red visible light wavelengths and therefore reflect the green one.'}
+2+3,5
+2+2,4
+10+5,15
+20+20,40
+1+1,2
+
