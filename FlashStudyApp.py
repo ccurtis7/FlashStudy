@@ -1,76 +1,37 @@
 import random
 
 class Deck:
-    def __init__(self):
+    def __init__(self, filename):
         #run deck stuff
-        pass
+        if filename == '':
+            print('Creating empty deck.')
+            self.cards = {}
+        elif '.txt' in filename:
+            self.cards = {}
+            infile = open(filename, 'r')
+            for line in infile.readlines():
+                contents = line.replace('\n', '')
+                contents = contents.split(',')
+                self.cards[contents[0]] = contents[1]
+            infile.close()
+        else:
+            raise ValueError('Invalid filename provided. Cannot create Deck.')
 
-    def createCard(self):
-        #newfile = input('Choose a file to send the card: ')
-        #outFile = open(newfile, 'w')
-        
-        #create empty dictionary
-        card = {}
-        
-        #card = {question, answer}
-        #question = "2 + 2"
-        #answer = "4" 
+    def addCard(self, front, back):
+        # Adds or modifies an existing card, identified by front.
+        self.cards[front] = back
 
-        while True:
-            question = input("\nEnter the question: ") #ask the user for a question
-            if question == 'Q':
-                break
-            answer = input("Enter the answer: ") #ask the user for answer
-            
-            card[question] = answer
-        
-        self.outFile.write(str(card))
-        self.outFile.close()
-        
-        #save and return card dictionary
-        return card
-
-        
-
-        
-
-    def createDeck(self):
-        #ask user for new deck name
-        newfile = input('Choose a file to send the card: ')
-        
-        #create txt file
-        self.outFile = open(newfile, 'w')
-
-        #save and return deck
-        return self.outFile
-    
-    def existingDeck():
-        #ask user to choose an existing deck file
-        #return deck.file
-        pass
-
-    def modifyCard():
-        #lets user modify the card dictionary
-        pass
-
-    def deleteCard():
+    def deleteCard(self, front):
         #delete chosen card dictionary
-        pass
+        del self.cards[front]
 
-    def nextCard():
-        #go through all the cards
-        pass
-
-    def scoreScreen(): 
-        #counter for times completed deck
-        #if user input == main screen:
-        #    start game all over
-        #    exit to main screen
-        #elif user input == go through same deck again:
-        #    start chosen deck for loop again
-        #else:
-        #    close game
-        pass
+    def writeDeck(self, filename):
+        outfile = open(filename, 'w')
+        contents = ''
+        for front, back in self.cards.items():
+            contents += '{},{}\n'.format(front, back)
+        print(contents, file=outfile)
+        outfile.close()
 
 
 class FlashStudyApp:
@@ -105,7 +66,7 @@ class FlashStudyApp:
 
         #for every card in chosen deck loop:
         #    nextCard()
-        
+
         #scorescreen()
         #    pass
             break
