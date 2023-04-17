@@ -80,4 +80,3 @@ class FlashStudyApp:
         
         scorescreen()
 
-# Installation
