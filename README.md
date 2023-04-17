@@ -79,3 +79,4 @@ class FlashStudyApp:
             nextCard()
         
         scorescreen()
+
