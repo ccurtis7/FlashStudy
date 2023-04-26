@@ -33,6 +33,12 @@ class Deck:
         print(contents, file=outfile)
         outfile.close()
 
+    def nextCard(self, front, back):
+        for front, back in self.cards():
+            if next.clicked():
+                return front
+            if turn.clicked():
+                return back
 
 class FlashStudyApp:
     def __init__(self):
