@@ -15,7 +15,8 @@ class Button:
 
         self.rect = Rectangle(p1, p2)
         self.rect.draw(win)
-        self.rect.setFill('lightgrey')
+        self.rect.setFill('midnight blue')
+        self.rect.setOutline('white')
 
         self.label = Text(center, label)
         self.label.draw(win)
@@ -29,7 +30,7 @@ class Button:
 
     def activate(self):
         self.active = True
-        self.label.setFill('black')
+        self.label.setFill('white')
         self.rect.setWidth(2)
 
     def deactivate(self):
