@@ -1,5 +1,3 @@
-import sys
-sys.path.insert(0, '..')
 from graphics import *
 from button import Button
 #from FlashStudyApp import Deck
@@ -15,6 +13,9 @@ class StartMenu:
         self.mainwin = mainwin = GraphWin('FlashStudy - Start Menu', 500, 500)
         mainwin.setCoords(0, 0, 100, 100)
         self.mainwin.setBackground('midnight blue')
+
+        # Image
+        self.brandImage = Image(Point(50,50), "FlashStudy.gif").draw(mainwin)
         
         # Buttons
         # continue to bring up existing deck
@@ -29,22 +30,15 @@ class StartMenu:
         self.quitButton = Button(self.mainwin, Point(80, 10), 25, 10, 'Quit')
         self.quitButton.activate()
         
-    def text(self):
-        title = Text(Point(50, 90), 'FlashStudy')
-        title.setSize(18)
-        title.setStyle("bold")
-        title.setTextColor("light blue")
-        title.draw(self.mainwin)
-        
-        instruction = Text(Point(50, 50), 'You will be able to study any\n'
-                         'subject you want this flashcard maker.')
-        instruction.setSize(15)
-        instruction.setTextColor("light blue")
-        instruction.draw(self.mainwin)
+        # about the flashcard app
+        about = Text(Point(50, 65), 'You will be able to study any\n'
+                         'subject you want with this flashcard maker.')
+        about.setSize(15)
+        about.setTextColor("white")
+        about.draw(self.mainwin)
 
 
     def run(self):
-        self.text()
         p = Point(0, 0)
         while not self.quitButton.clicked(p):
             p = self.mainwin.getMouse()
@@ -54,8 +48,6 @@ class StartMenu:
             elif self.newDeckButton.clicked(p):
                 newDeckButton = NewDeck()
                 newDeckButton.run()
-            else:
-                break
                 
 class DeckView:
     def __init__(self):
@@ -71,42 +63,54 @@ class NewDeck:
         # Create and save a new deck file
         self.outfilename = asksaveasfilename(initialdir=os.path.join(os.getcwd(), 'deck'))
 
-        # Graphics User Interface for Add window
+        # Graphics User Interface for adding cards
+
+        # Add Card Window
         self.addcardwin = addcardwin = GraphWin("Create Flashcards", 500, 500)
-        addcardwin.setCoords(0, 0, 500, 500), addcardwin.setBackground("midnight blue")
+        addcardwin.setCoords(0, 0, 100, 100), addcardwin.setBackground("midnight blue")
+
+        # Image
+        self.catImage = Image(Point(50,50), "FlashPaw.gif").draw(addcardwin)
+
+        instruction = Text(Point(50, 75), 'Type your question or problem for the front\n'
+                    'of the card. Then type the answer for the\n'
+                    'back of the card.\n'
+                    '\nPress "Save" AFTER EACH card.')
+        instruction.setSize(15)
+        instruction.setTextColor("white")
+        instruction.draw(self.addcardwin)
         
         # Input fields
-        self.question_input = Entry(Point(250, 300), 15).draw(addcardwin)
+        self.question_input = Entry(Point(55, 50), 30).draw(addcardwin)
         self.question_input.setFill("white")
-        self.question_input_label = Text(Point(145, 300), "Question:").draw(addcardwin)
-        self.question_input_label.setTextColor("light blue")
+        self.question_input_label = Text(Point(20, 50), "Front:").draw(addcardwin)
+        self.question_input_label.setTextColor("white")
+        self.question_input_label.setSize(15)
 
-        self.answer_input = Entry(Point(250, 250), 15).draw(addcardwin)
-        self.answer_input_label = Text(Point(145, 250), "Answer:").draw(addcardwin)
-        self.answer_input_label.setTextColor("light blue")
+        self.answer_input = Entry(Point(55, 40), 30).draw(addcardwin)
+        self.answer_input_label = Text(Point(20, 40), "Back:").draw(addcardwin)
+        self.answer_input_label.setTextColor("white")
+        self.answer_input_label.setSize(15)
 
         # Buttons
-        self.save_button = Button(addcardwin, Point(150, 150), 45, 32, "Save")
+        self.save_button = Button(addcardwin, Point(35, 10), 25, 10, "Save")
         self.answer_input.setFill("white")
         self.save_button.activate()
 
-        self.quit_button = Button(addcardwin, Point(350, 150), 45, 32, "Quit")
+        self.quit_button = Button(addcardwin, Point(65, 10), 25, 10, "Quit")
         self.quit_button.activate()
 
     def saveInputs(self):
         question, answer = self.question_input.getText(), self.answer_input.getText()
 
         # Save the question and answer to a file
-        with open("Sample.txt", "a") as f: f.write(f"Question: {question}\nAnswer: {answer}\n")
+        with open(self.outfilename, "a") as f: f.write(f"{question},{answer}\n")
 
         # Clear the input fields
         self.answer_input.setText(""), self.question_input.setText("")
 
 
-    def run(self):
-        # NewCardWin
-        #self.pt = self.addcardwin.getMouse()
-        
+    def run(self):    
         while True:
             self.pt = self.addcardwin.getMouse()
             if self.save_button.clicked(self.pt):
