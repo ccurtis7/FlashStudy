@@ -7,6 +7,12 @@ A **flash card** app used to help students study
 * Build user interface
 * Outline algorithm with pseudocode
 
+# Graphics Colors (hex code, graphics.py)
+* #191970, midnight blue 
+* #FF8C00, dark orange
+* #ADD8E6, light blue
+* #9ACD32, OliveDrab3
+
 # Pseudocode
 import random
 
