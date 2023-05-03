@@ -1,87 +1,375 @@
-import random
+from graphics import *
+from button import Button
+#from FlashStudyApp import Deck
+#from Interface2 import DisplayBackCard
+from tkinter.filedialog import askopenfilename, asksaveasfilename
+from pathlib import Path
+import os
 
-class Deck:
-    def __init__(self, filename):
-        #run deck stuff
-        if filename == '':
-            print('Creating empty deck.')
+class StartMenu:
+    def __init__(self):
+        # Graphics User Interface for starting menu
+        
+        ## Main Window
+        self.mainwin = mainwin = GraphWin('FlashStudy - Start Menu', 500, 500)
+        mainwin.setCoords(0, 0, 100, 100)
+        self.mainwin.setBackground('midnight blue')
+
+        ## Image
+        self.brandImage = Image(Point(50,50), "FlashStudy.gif").draw(mainwin)
+
+        ## About the flashcard app
+        about = Text(Point(50, 65), 'Study any subject with this flashcard maker!')
+        about.setSize(15)
+        about.setTextColor("white")
+        about.draw(self.mainwin)
+        
+        ## Buttons
+        ### choose an existing deck
+        self.chooseDeckButton = Button(self.mainwin, Point(20, 10), 25, 10, 'Choose Deck')
+        self.chooseDeckButton.activate()
+
+        ### create a new deck
+        self.createDeckButton = Button(self.mainwin, Point(50, 10), 25, 10, 'Create Deck')
+        self.createDeckButton.activate()
+        
+        ### quit to exit program
+        self.quitButton = Button(self.mainwin, Point(80, 10), 25, 10, 'Quit')
+        self.quitButton.activate()       
+
+    def run(self):
+        p = Point(0, 0)
+        while not self.quitButton.clicked(p):
+            p = self.mainwin.getMouse()
+            if self.chooseDeckButton.clicked(p):
+                chooseDeckButton = DeckMenu()
+                chooseDeckButton.run()
+            elif self.createDeckButton.clicked(p):
+                createDeckButton = NewDeck()
+                createDeckButton.run()
+                
+class DeckMenu:
+    def __init__(self):
+        # Open an existing deck file within a "deck" folder
+        self.infilename = askopenfilename(initialdir=os.path.join(os.getcwd(), 'deck'))
+        
+        # Graphics User Interface for starting menu if user didn't "cancel"
+        if self.infilename:
+            ## Deck Window
+            self.deckwin = deckwin = GraphWin('FlashStudy - Deck', 500, 500)
+            deckwin.setCoords(0, 0, 100, 100)
+            self.deckwin.setBackground('midnight blue')
+
+            ## Image
+            self.indexImage = Image(Point(50,50), "FlashIndex.gif").draw(deckwin)
+        
+            ## Deck Name
+            existingfilename = Path(self.infilename)
+            existingDeckName = Text(Point(50, 31), existingfilename.name)
+            existingDeckName.setSize(20)
+            existingDeckName.setStyle("bold")
+            existingDeckName.setTextColor("white")
+            existingDeckName.draw(self.deckwin)
+
+            ## Buttons
+            ### review deck
+            self.reviewDeckButton = Button(self.deckwin, Point(20, 10), 25, 10, 'Review')
+            self.reviewDeckButton.activate()
+
+            ### delete deck
+            self.modifyDeckButton = Button(self.deckwin, Point(50, 10), 25, 10, 'Edit')
+            self.modifyDeckButton.activate()
+        
+            ### close deck window to go back to main window
+            self.backButton = Button(self.deckwin, Point(80, 10), 25, 10, 'Back')
+            self.backButton.activate()
+
+    def run(self):
+        while True:
+            if not self.infilename:
+                break
+            self.pt = self.deckwin.getMouse()
+            if self.reviewDeckButton.clicked(self.pt):
+                self.deckwin.close()
+                self.reviewDeck()
+                break
+            elif self.modifyDeckButton.clicked(self.pt):
+                self.modifyDeck()
+                #modifyDeckButton.run()
+            elif self.backButton.clicked(self.pt):
+                self.deckwin.close()
+                break
+
+    def reviewDeck(self):
+        # Graphics User Interface for starting menu if user didn't "cancel"
+        ## Deck Window
+        self.studywin = studywin = GraphWin('FlashStudy - Review', 500, 500)
+        studywin.setCoords(0, 0, 100, 100)
+        self.studywin.setBackground('midnight blue')
+
+        ## Image
+        self.booksImage = Image(Point(50,50), "FlashBooks.gif").draw(studywin)
+
+        ### Card
+        rect = Rectangle(Point(15, 50), Point(85, 90))
+        rect.setFill('white')
+        rect.draw(self.studywin)
+
+        ## Buttons
+        ### turn card
+        self.turnCardButton = Button(self.studywin, Point(35, 10), 25, 10, 'Answer')
+        self.turnCardButton.activate()
+
+        ### quit review
+        self.quitReviewButton = Button(self.studywin, Point(65, 10), 25, 10, 'Quit')
+        self.quitReviewButton.activate()
+
+        ## Flashcard Contents
+        ### turn .txt file str into dictionaries
+        if '.txt' in self.infilename:
             self.cards = {}
-        elif '.txt' in filename:
-            self.cards = {}
-            infile = open(filename, 'r')
+            infile = open(self.infilename, 'r')
             for line in infile.readlines():
                 contents = line.replace('\n', '')
                 contents = contents.split(',')
                 self.cards[contents[0]] = contents[1]
             infile.close()
         else:
-            raise ValueError('Invalid filename provided. Cannot create Deck.')
+            self.studywin.close()
 
-    def addCard(self, front, back):
-        # Adds or modifies an existing card, identified by front.
-        self.cards[front] = back
-
-    def deleteCard(self, front):
-        #delete chosen card dictionary
-        del self.cards[front]
-
-    def writeDeck(self, filename):
-        outfile = open(filename, 'w')
-        contents = ''
+        ### create keys
+        self.keys = []
         for front, back in self.cards.items():
-            contents += '{},{}\n'.format(front, back)
-        print(contents, file=outfile)
-        outfile.close()
+            self.keys.append(front)
+         
+        self.frontText = Text(Point(50, 70), self.keys[0])
 
-    #def nextCard(self, front, back):
-    #    for front, back in self.cards():
-    #        if next.clicked():
-    #            return front
-    #        if turn.clicked():
-    #            return back
+        p = Point(0,0)
+        for front, back in self.cards.items():
+            self.frontText = Text(Point(50, 70), front)
+            self.frontText.draw(self.studywin)
+            p = self.studywin.getMouse()
+            if self.turnCardButton.clicked(p):
+                ### undraw front of card
+                self.frontText.undraw()
+                ### show back of card
+                self.backText = Text(Point(50, 70), back)
+                self.backText.draw(self.studywin)
+                ### deactivate turn card button, create and activate next button
+                self.nextCardButton = Button(self.studywin, Point(35, 10), 25, 10, 'Next')
+                self.nextCardButton.activate()
+                p = self.studywin.getMouse()
+                if self.nextCardButton.clicked(p):
+                    self.backText.undraw()
+                    self.turnCardButton = Button(self.studywin, Point(35, 10), 25, 10, 'Answer')
+                    self.turnCardButton.activate()
+                elif self.quitReviewButton.clicked(p):
+                    self.studywin.close()
+                    break
+                else:
+                    break
+            if self.quitReviewButton.clicked(p):
+                self.studywin.close()
+                break
+        self.studywin.close()
+        if not self.quitReviewButton.clicked(p):
+            self.scoreScreen()
+    
+    def scoreScreen(self):
+        # Graphics for end of review deck
+        ## Score Window
+        self.scorewin = scorewin = GraphWin('FlashStudy - Score Screen', 500, 500)
+        scorewin.setCoords(0, 0, 100, 100)
+        self.scorewin.setBackground('midnight blue')
+        self.congratsImage = Image(Point(50,50), "FlashCongrats.gif").draw(self.scorewin)
 
-class FlashStudyApp:
-    def __init__(self):
-        self.deck = Deck()
-        filename = ''
-        self.deck()
-        #self.outFile =  ""
-        #deck.shuffle()
-        #pass
-
-    def play(self):
+        #p = Point(0,0)
+        #p = self.scorewin.getMouse()
         while True:
-            newDeck = self.deck.createDeck()
-            newCard = self.deck.createCard()
-            print(newCard)
-            return newDeck
-        #ask user to create a new deck or choose an existing deck
-        #if user input == createDeck:
-        #    createDeck()
-        #    make cards until user is done loop:
-        #        createCard()
-        #elif user input == existingDeck:
-        #    existingDeck()
-        #    ask user if they want to modify, delete, add card, or continue
-        #    if modify:
-        #        modifyCard()
-        #    elif delete:
-        #        deleteCard()
-        #    elif add:
-        #        createCard()
-        #    elif continue:
-        #        continue
+            if self.scorewin.getMouse():
+                self.scorewin.close()
+                break
+            
+    def modifyDeck(self):
+        # Graphics User Interface for starting menu if user didn't "cancel"
 
-        #for every card in chosen deck loop:
-        #    nextCard()
+        ## Modify Deck Window
+        self.modifywin = modifywin = GraphWin('FlashStudy - Edit Deck', 500, 500)
+        modifywin.setCoords(0, 0, 100, 100)
+        self.modifywin.setBackground('midnight blue')
 
-        #scorescreen()
-        #    pass
-            break
+        ## Image
+        self.pencilImage = Image(Point(50,50), "FlashPencil.gif").draw(modifywin)
+        
+        ## Deck Name
+        existingfilename = Path(self.infilename)
+        existingDeckName = Text(Point(50, 31), existingfilename.name)
+        existingDeckName.setSize(20)
+        existingDeckName.setStyle("bold")
+        existingDeckName.setTextColor("white")
+        existingDeckName.draw(self.modifywin)
 
-if __name__ == '__main__':
-    #inter = GraphicsInterface()
-    #app = FlashStudyApp(self)
-    #app.run()
-    app = FlashStudyApp()
-    app.play()
+        ## Buttons
+        ### add card
+        self.addCardButton = Button(self.modifywin, Point(20, 10), 25, 10, 'Add Card')
+        self.addCardButton.activate()
+
+        ### delete deck
+        self.deleteDeckButton = Button(self.modifywin, Point(50, 10), 25, 10, 'Delete Deck')
+        self.deleteDeckButton.activate()
+        
+        ### close deck window to go back to deck window
+        self.backDeckButton = Button(self.modifywin, Point(80, 10), 25, 10, 'Back')
+        self.backDeckButton.activate()
+        
+        while True:
+            self.pt = self.modifywin.getMouse()
+            if self.addCardButton.clicked(self.pt):
+                self.newCard()
+                self.saveNewCard()
+            elif self.deleteDeckButton.clicked(self.pt):
+                os.remove(self.infilename)
+                self.modifywin.close()
+                break
+            elif self.backDeckButton.clicked(self.pt):
+                self.modifywin.close()
+                break
+
+    def newCard(self):
+        # Graphics User Interface for adding cards if user didn't "cancel"
+        ## Add Card Window
+        self.newcardwin = newcardwin = GraphWin("Add Flashcards", 500, 500)
+        newcardwin.setCoords(0, 0, 100, 100), newcardwin.setBackground("midnight blue")
+
+        ## Deck Name
+        newfilename = Path(self.infilename)
+        DeckName = Text(Point(50, 90), newfilename.name)
+        DeckName.setSize(20)
+        DeckName.setStyle("bold")
+        DeckName.setTextColor("white")
+        DeckName.draw(self.newcardwin)
+            
+        ## Image
+        self.pawImage = Image(Point(50,50), "FlashPaw.gif").draw(newcardwin)
+
+        instruction = Text(Point(50, 75), 'Type your question or problem for the front\n'
+                    'of the card. Then type the answer for the\n'
+                    'back of the card.\n')
+        instruction.setSize(15)
+        instruction.setTextColor("white")
+        instruction.draw(self.newcardwin)
+        
+        ## Input fields
+        self.questionInput = Entry(Point(55, 60), 30).draw(newcardwin)
+        self.questionInput.setFill("white")
+        self.questionInputLabel = Text(Point(20, 60), "Front:").draw(newcardwin)
+        self.questionInputLabel.setTextColor("white")
+        self.questionInputLabel.setSize(15)
+
+        self.answerInput = Entry(Point(55, 50), 30).draw(newcardwin)
+        self.answerInputLabel = Text(Point(20, 50), "Back:").draw(newcardwin)
+        self.answerInputLabel.setTextColor("white")
+        self.answerInputLabel.setSize(15)
+
+        ## Buttons
+        self.addButton = Button(newcardwin, Point(35, 10), 25, 10, "Add")
+        self.answerInput.setFill("white")
+        self.addButton.activate()
+
+        self.closeButton = Button(newcardwin, Point(65, 10), 25, 10, "Close")
+        self.closeButton.activate()
+
+    def saveInputs(self):
+        question, answer = self.questionInput.getText(), self.answerInput.getText()
+
+        # Save the question and answer to a file
+        with open(self.infilename, "a") as f: f.write(f"{question},{answer}\n")
+
+        # Clear the input fields
+        self.answerInput.setText(""), self.questionInput.setText("")
+      
+    def saveNewCard(self):  
+        while True:
+           # if not self.infilename:
+           #     break
+            self.pt = self.newcardwin.getMouse()
+            if self.addButton.clicked(self.pt):
+                self.saveInputs()
+            elif self.closeButton.clicked(self.pt):
+                self.newcardwin.close()
+                break
+
+class NewDeck:
+    def __init__(self):
+        # Create and save a new deck file
+        self.outfilename = asksaveasfilename(initialdir=os.path.join(os.getcwd(), 'deck'))
+
+        # Graphics User Interface for adding cards if user didn't "cancel"
+        if self.outfilename:
+            ## Add Card Window
+            self.addcardwin = addcardwin = GraphWin("Create Flashcards", 500, 500)
+            addcardwin.setCoords(0, 0, 100, 100), addcardwin.setBackground("midnight blue")
+
+            ## Deck Name
+            newfilename = Path(self.outfilename)
+            newDeckName = Text(Point(50, 90), newfilename.name)
+            newDeckName.setSize(20)
+            newDeckName.setStyle("bold")
+            newDeckName.setTextColor("white")
+            newDeckName.draw(self.addcardwin)
+            
+            ## Image
+            self.pawImage = Image(Point(50,50), "FlashPaw.gif").draw(addcardwin)
+
+            instruction = Text(Point(50, 75), 'Type your question or problem for the front\n'
+                        'of the card. Then type the answer for the\n'
+                        'back of the card.\n')
+            instruction.setSize(15)
+            instruction.setTextColor("white")
+            instruction.draw(self.addcardwin)
+        
+            ## Input fields
+            self.questionInput = Entry(Point(55, 60), 30).draw(addcardwin)
+            self.questionInput.setFill("white")
+            self.questionInputLabel = Text(Point(20, 60), "Front:").draw(addcardwin)
+            self.questionInputLabel.setTextColor("white")
+            self.questionInputLabel.setSize(15)
+
+            self.answerInput = Entry(Point(55, 50), 30).draw(addcardwin)
+            self.answerInputLabel = Text(Point(20, 50), "Back:").draw(addcardwin)
+            self.answerInputLabel.setTextColor("white")
+            self.answerInputLabel.setSize(15)
+
+            ## Buttons
+            self.addButton = Button(addcardwin, Point(35, 10), 25, 10, "Add")
+            self.answerInput.setFill("white")
+            self.addButton.activate()
+
+            self.closeButton = Button(addcardwin, Point(65, 10), 25, 10, "Close")
+            self.closeButton.activate()
+
+    def saveInputs(self):
+        question, answer = self.questionInput.getText(), self.answerInput.getText()
+
+        # Save the question and answer to a file
+        with open(self.outfilename, "a") as f: f.write(f"{question},{answer}\n")
+
+        # Clear the input fields
+        self.answerInput.setText(""), self.questionInput.setText("")
+
+
+    def run(self):    
+        while True:
+            if not self.outfilename:
+                break
+            self.pt = self.addcardwin.getMouse()
+            if self.addButton.clicked(self.pt):
+                self.saveInputs()
+            elif self.closeButton.clicked(self.pt):
+                self.addcardwin.close()
+                break
+             
+                
+if __name__ == "__main__":
+    flashstudy = StartMenu()
+    flashstudy.run()
